@@ -3,22 +3,26 @@
 
 %%
 
-\s+                     ;
-[\w-]+            return 'IDENTIFIER';
-"("                     return '(';
-")"                     return ')';
-"["                     return '[';
-"]"                     return ']';
-"{"                     return '{';
-"}"                     return '}';
-"=="                    return '==';
-"="                     return '=';
-","                     return ',';
-"&"                     return '&';
-"|"                     return '|';
-">"                     return '>';
-"<"                     return '<';
-<<EOF>>                 return 'EOF';
+\s+                         ; //We ignore spaces
+\/\*.*\*\/                  ; //We ignore comments
+(\d{1,3}"."){3}\d{1,3}    return 'IDENTIFIER'; //To match IP addresses
+\/.*\/                      return 'IDENTIFIER'; //regular expressions
+\w+\|[\w-]+|[\w-]+          return 'IDENTIFIER'; //To match word or object|prop
+"("                         return '(';
+")"                         return ')';
+"["                         return '[';
+"]"                         return ']';
+"{"                         return '{';
+"}"                         return '}';
+"=="                        return '==';
+"~="                        return '~=';
+"="                         return '=';
+","                         return ',';
+"&"                         return '&';
+"|"                         return '|';
+">"                         return '>';
+"<"                         return '<';
+<<EOF>>                     return 'EOF';
 
 /lex
 
@@ -35,17 +39,17 @@ var registry = require('../registry');
 
 %%
 script
-    : script_body EOF { $$ = $1; console.log(JSON.stringify(registry.chains)) }
+    : script_body EOF { $$ = $1 }
     ;
 
 script_body
-    : script_body assignation {$1.push($2)}
+    : script_body assignation {$1.push($2);}
     | assignation {$$ = [$1];}
     ;
 
 assignation 
     : IDENTIFIER '=' chain { registry.addChain($1, $3);}
-    | IDENTIFIER '=' filter {console.log('paatata');}
+    | IDENTIFIER '=' filter { registry.addFilter($1, $3);}
     ;
 
 chain
@@ -72,19 +76,25 @@ function_call
     
 function_args
     : IDENTIFIER { $$ = [$1]; }
+    | chain
+    | filter
     | function_args ',' IDENTIFIER { $$ = $1; $1.push($3)}
     ;
 
 filter
     : '{' exp '}'
     ;
-    
+
+cmp
+    : IDENTIFIER '==' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '~=' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '<' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '>' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
+    ;
+
 exp
-    : IDENTIFIER
-    | exp '&' exp
-    | exp '|' exp
-    | exp '==' exp
-    | exp '~=' exp
-    | exp '<' exp
-    | exp '>' exp
+    : exp '&' exp { $$ = sprache.Expression($1, $2, $3); }
+    | exp '|' exp { $$ = sprache.Expression($1, $2, $3); }
+    | '(' exp ')' { $$ = $2; }
+    | cmp
     ;
