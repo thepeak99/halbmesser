@@ -43,13 +43,17 @@ script
     ;
 
 script_body
-    : script_body assignation {$1.push($2);}
-    | assignation {$$ = [$1];}
+    : script_body line {$1.push($2);}
+    | line {$$ = [$1];} 
+    ;
+    
+line 
+    : assignation
     ;
 
 assignation 
-    : IDENTIFIER '=' chain { registry.addChain($1, $3);}
-    | IDENTIFIER '=' filter { registry.addFilter($1, $3);}
+    : IDENTIFIER '=' chain { registry.addChain($1, $3); }
+    | IDENTIFIER '=' filter { registry.addFilter($1, $3); }
     ;
 
 chain
@@ -62,9 +66,9 @@ chain_body
     ;
 
 chain_body_element
-    : function_call { $$ = $1; }
-    | filter {$$ = $1; }
-    | chain { $$ = $1; }
+    : function_call 
+    | filter 
+    | chain 
     ;
     
 function_call 
@@ -82,19 +86,19 @@ function_args
     ;
 
 filter
-    : '{' exp '}'
+    : '{' exp '}' { $$ = new sprache.Filter($2); }
     ;
 
 cmp
-    : IDENTIFIER '==' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '~=' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '<' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '>' IDENTIFIER { $$ = sprache.Expression($1, $2, $3); }
+    : IDENTIFIER '==' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '~=' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '<' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
+    | IDENTIFIER '>' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
     ;
 
 exp
-    : exp '&' exp { $$ = sprache.Expression($1, $2, $3); }
-    | exp '|' exp { $$ = sprache.Expression($1, $2, $3); }
+    : exp '&' exp { $$ = new sprache.Expression($1, $2, $3); }
+    | exp '|' exp { $$ = new sprache.Expression($1, $2, $3); }
     | '(' exp ')' { $$ = $2; }
     | cmp
     ;
