@@ -5,9 +5,10 @@
 
 \s+                         ; //We ignore spaces
 \/\*.*\*\/                  ; //We ignore comments
-(\d{1,3}"."){3}\d{1,3}    return 'IDENTIFIER'; //To match IP addresses
-\/.*\/                      return 'IDENTIFIER'; //regular expressions
-\w+\|[\w-]+|[\w-]+          return 'IDENTIFIER'; //To match word or object|prop
+(\d{1,3}"."){3}\d{1,3}      return 'IPADDR'; //To match IP addresses
+\/.*\/                      return 'REGEXP'; //regular expressions
+\w+\|[\w-]+                 return 'OBJECT_PROP'; //To match word or object|prop
+[A-Za-z][\w-]+              return 'NAME'; //To match word or object|prop
 "("                         return '(';
 ")"                         return ')';
 "["                         return '[';
@@ -38,6 +39,13 @@ var registry = require('../registry');
 %}
 
 %%
+VALUE
+    : REGEXP 
+    | IPADDR
+    | NAME
+    | OBJECT_PROP
+    ;
+
 script
     : script_body EOF { $$ = $1 }
     ;
@@ -52,8 +60,8 @@ line
     ;
 
 assignation 
-    : IDENTIFIER '=' chain { registry.addChain($1, $3); }
-    | IDENTIFIER '=' filter { registry.addFilter($1, $3); }
+    : NAME '=' chain { registry.addChain($1, $3); }
+    | NAME '=' filter { registry.addFilter($1, $3); }
     ;
 
 chain
@@ -72,17 +80,21 @@ chain_body_element
     ;
     
 function_call 
-    : IDENTIFIER  {$$ = new sprache.FunctionCall(registry.getFunction($1)); }
-    | IDENTIFIER '(' function_args ')' { 
+    : NAME  {$$ = new sprache.FunctionCall(registry.getFunction($1)); }
+    | NAME '(' function_args ')' { 
         $$ = new sprache.FunctionCall(registry.getFunction($1), $3); 
     }
     ;
     
 function_args
-    : IDENTIFIER { $$ = [$1]; }
+    : function_arg {$$ = [$1]}
+    | function_args ',' function_arg { $$ = $1; $1.push($3)}
+    ;
+    
+function_arg
+    : VALUE 
     | chain
     | filter
-    | function_args ',' IDENTIFIER { $$ = $1; $1.push($3)}
     ;
 
 filter
@@ -90,10 +102,10 @@ filter
     ;
 
 cmp
-    : IDENTIFIER '==' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '~=' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '<' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
-    | IDENTIFIER '>' IDENTIFIER { $$ = new sprache.Expression($1, $2, $3); }
+    : VALUE '==' VALUE { $$ = new sprache.Expression($1, $2, $3); }
+    | VALUE '~=' REGEXP { $$ = new sprache.Expression($1, $2, $3); }
+    | VALUE '<' VALUE { $$ = new sprache.Expression($1, $2, $3); }
+    | VALUE '>' VALUE { $$ = new sprache.Expression($1, $2, $3); }
     ;
 
 exp
