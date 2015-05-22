@@ -105,4 +105,15 @@ describe('mschapv2', function () {
         
         expect(r).to.be.deep.equal(expected);
     });
+    
+    it('should validate a user from RADIUS', function () {
+        var params = {
+            req : {
+                attributes: {
+                    'User-Name': 'User'
+                }
+            }
+        };
+        
+    });
 });
