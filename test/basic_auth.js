@@ -36,7 +36,8 @@ describe('basic_auth', function () {
         it('should authenticate with PAP', function (done) {
             params.req.attributes['User-Password'] = 'clientPass';
 
-            auth_pap(params, null, function () {
+            auth_pap(params, null, function (r) {
+                expect(r).to.be.equal(true);
                 expect(params.res.code).to.be.equal('Access-Accept');
                 done();
             });
@@ -45,19 +46,29 @@ describe('basic_auth', function () {
         it('should fail to authenticate with PAP', function (done) {
             params.req.attributes['User-Password'] = 'wrongPass';
             
-            auth_pap(params, null, function () {
+            auth_pap(params, null, function (r) {
+                expect(r).to.be.equal(false);
+                expect(params.res.code).to.be.equal('Access-Reject');
+                done();
+            });
+        });
+        
+        it('should ignore if packet does not carry PAP info', function (done) {
+            auth_pap(params, null, function (r) {
+                expect(r).to.be.equal(false);
                 expect(params.res.code).to.be.equal('Access-Reject');
                 done();
             });
         });
     });
 
-    describe('chap', function() {
+    describe('chap', function () {
         it('should authenticate with CHAP', function (done) {
             params.req.attributes['CHAP-Challenge'] = new Buffer('91768eb5f10720bae1ddc3d6df3c1274', 'hex');
             params.req.attributes['CHAP-Password'] = new Buffer('6100a0c14131b69a04ab344a21054483d1', 'hex');
         
-            auth_chap(params, null, function () {
+            auth_chap(params, null, function (r) {
+                expect(r).to.be.equal(true);
                 expect(params.res.code).to.be.equal('Access-Accept');
                 done();
             });
@@ -67,7 +78,16 @@ describe('basic_auth', function () {
             params.req.attributes['CHAP-Challenge'] = new Buffer('91768eb5f10720bae1ddc3d6df3c1274', 'hex');
             params.req.attributes['CHAP-Password'] = new Buffer('6100a0c14131b69a04ab344a21054483d2', 'hex');
         
-            auth_chap(params, null, function () {
+            auth_chap(params, null, function (r) {
+                expect(r).to.be.equal(false);
+                expect(params.res.code).to.be.equal('Access-Reject');
+                done();
+            });
+        });
+        
+        it('should ignore if packet does not carry CHAP info', function (done) {
+            auth_pap(params, null, function (r) {
+                expect(r).to.be.equal(false);
                 expect(params.res.code).to.be.equal('Access-Reject');
                 done();
             });
