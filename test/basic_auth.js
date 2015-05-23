@@ -6,7 +6,7 @@ var rewire = require('rewire');
 var expect = require('chai').expect;
 var basic = rewire('../lib/auth/basic');
 
-describe('basic_auth', function () {
+describe('Basic Authentication', function () {
     var params, auth_pap, auth_chap;
     
     before(function () {

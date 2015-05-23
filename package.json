@@ -23,11 +23,11 @@
     "async": "^0.9.0",
     "buffertools": "^2.1.2",
     "nconf": "^0.7.1",
-    "radius": "^1.1.0"
+    "radius": "^1.1.0",
+    "rewire": "^2.3.3"
   },
   "devDependencies": {
     "chai": "^2.3.0",
-    "mocha": "^2.2.5",
-    "rewire": "^2.3.3"
+    "mocha": "^2.2.5"
   }
 }
