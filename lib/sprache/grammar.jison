@@ -36,6 +36,14 @@
 %{
 var sprache = require('./sprache');
 var registry = require('../registry');
+
+function checkUndefined(obj, type, name) {
+    if (obj === undefined) {
+        throw new ReferenceError('Unknown ' + type + ': ' + name);
+    }
+    return obj;
+}
+
 %}
 
 %%
@@ -80,9 +88,9 @@ chain_body_element
     ;
     
 function_call 
-    : NAME  {$$ = new sprache.FunctionCall(registry.getFunction($1)); }
+    : NAME  { $$ = new sprache.FunctionCall(checkUndefined(registry.getFunction($1), 'function', $1)) ; }
     | NAME '(' function_args ')' { 
-        $$ = new sprache.FunctionCall(registry.getFunction($1), $3); 
+        $$ = new sprache.FunctionCall(checkUndefined(registry.getFunction($1),'function', $1), $3); 
     }
     ;
     
