@@ -43,7 +43,7 @@ describe('basic_auth', function () {
             });
         });
     
-        it('should fail to authenticate with PAP', function (done) {
+        it('should fail to authenticate with PAP if the password is incorrect', function (done) {
             params.req.attributes['User-Password'] = 'wrongPass';
             
             auth_pap(params, null, function (r) {
@@ -74,7 +74,7 @@ describe('basic_auth', function () {
             });
         });
 
-        it('should fail to authenticate with CHAP', function (done) {
+        it('should fail to authenticate with CHAP if the password is incorrect', function (done) {
             params.req.attributes['CHAP-Challenge'] = new Buffer('91768eb5f10720bae1ddc3d6df3c1274', 'hex');
             params.req.attributes['CHAP-Password'] = new Buffer('6100a0c14131b69a04ab344a21054483d2', 'hex');
         
