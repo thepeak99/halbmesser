@@ -4,7 +4,8 @@
   "description": "A RADIUS server in node.js",
   "main": "radius.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec"
+    "test": "node_modules/.bin/mocha --reporter spec",
+    "postinstall": "node_modules/.bin/gulp"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,8 @@
   },
   "devDependencies": {
     "chai": "^2.3.0",
+    "gulp": "^3.8.11",
+    "gulp-jison": "^1.2.0",
     "mocha": "^2.2.5"
   }
 }
