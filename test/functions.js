@@ -3,6 +3,7 @@
 'use strict';
 
 var rewire = require('rewire');
+var sinon = require('sinon');
 var expect = require('chai').expect;
 
 var functions = rewire('../lib/functions');
@@ -87,27 +88,20 @@ describe('Sprache Functions', function () {
     });
 
     describe('filter', function () {
-        it('should call a filter', function (done) {
-            
-            params.api.registry.addFilter('testFilter', {
-                run: function () {
-                    done();
-                }
-            });
-            
+        it('should call a filter', function () {
+            var spy = sinon.spy();
+            params.api.registry.addFilter('testFilter', { run: spy });
             filter(params, ['testFilter'], function () {});
+            expect(spy.calledOnce).to.be.equal(true);
         });
     });
     
     describe('chain', function () {
-        it('should call a chain', function (done) {
-            params.api.registry.addChain('testChain', {
-                run: function () {
-                    done();
-                }
-            });
-            
+        it('should call a chain', function () {
+            var spy = sinon.spy();
+            params.api.registry.addChain('testChain', { run: spy });
             chain(params, ['testChain'], function () {});
+            expect(spy.calledOnce).to.be.equal(true);
         });
     });
 });
